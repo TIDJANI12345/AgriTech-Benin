@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajouter une Récolte - AgriTech-Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-card {
+        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 2rem;
+        border-radius: 16px 16px 0 0;
+        text-align: center;
+    }
+    
+    .form-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2.5rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--dark-color);
+    }
+    
+    .form-label i {
+        color: var(--primary-color);
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f9fafb;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .form-text {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+    
+    .form-text i {
+        color: var(--primary-color);
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1));
+        border-left: 4px solid var(--primary-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .info-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .info-icon {
+        width: 24px;
+        height: 24px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, var(--success-color), #16a34a);
+        border: none;
+        padding: 1rem 2.5rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3);
+    }
+    
+    .btn-cancel {
+        padding: 1rem 2rem;
+        font-size: 1.125rem;
+        border-radius: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container fade-in-up">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_producteur' %}"><i class="bi bi-house"></i> Dashboard</a></li>
+            <li class="breadcrumb-item active">Ajouter une Récolte</li>
+        </ol>
+    </nav>
+
+    <div class="card form-card">
+        <!-- Header -->
+        <div class="form-header">
+            <div class="form-icon">
+                <i class="bi bi-plus-circle-fill"></i>
+            </div>
+            <h2 class="fw-bold mb-2">Enregistrer une Nouvelle Récolte</h2>
+            <p class="mb-0 opacity-90">Ajoutez les détails de votre récolte récente</p>
+        </div>
+
+        <!-- Form Body -->
+        <div class="card-body p-4">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Parcelle -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.parcelle.id_for_label }}" class="form-label">
+                                <i class="bi bi-geo-alt-fill"></i> {{ form.parcelle.label }}
+                            </label>
+                            {{ form.parcelle }}
+                            {% if form.parcelle.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="bi bi-exclamation-circle"></i> {{ form.parcelle.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i> Sélectionnez la parcelle où vous avez récolté
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Type de Culture -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.type_culture.id_for_label }}" class="form-label">
+                                <i class="bi bi-flower1"></i> {{ form.type_culture.label }}
+                            </label>
+                            {{ form.type_culture }}
+                            {% if form.type_culture.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="bi bi-exclamation-circle"></i> {{ form.type_culture.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i> Type de culture récoltée
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Quantité -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.quantite.id_for_label }}" class="form-label">
+                                <i class="bi bi-basket-fill"></i> {{ form.quantite.label }}
+                            </label>
+                            {{ form.quantite }}
+                            {% if form.quantite.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="bi bi-exclamation-circle"></i> {{ form.quantite.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i> Quantité totale en kilogrammes
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Date de Récolte -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.date_recolte.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar-check-fill"></i> {{ form.date_recolte.label }}
+                            </label>
+                            {{ form.date_recolte }}
+                            {% if form.date_recolte.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="bi bi-exclamation-circle"></i> {{ form.date_recolte.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i> Date à laquelle vous avez récolté
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations supplémentaires -->
+                <div class="info-card mt-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb-fill text-warning"></i> Informations Importantes</h6>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="bi bi-check"></i>
+                        </div>
+                        <p class="mb-0">Vos données sont automatiquement sauvegardées et visibles dans votre historique</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="bi bi-check"></i>
+                        </div>
+                        <p class="mb-0">Les gestionnaires utilisent ces informations pour optimiser la gestion des stocks</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="bi bi-check"></i>
+                        </div>
+                        <p class="mb-0">Assurez-vous d'entrer la quantité exacte pour des statistiques précises</p>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a href="{% url 'mes_recoltes' %}" class="btn btn-outline-secondary btn-cancel">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-success btn-submit">
+                        <i class="bi bi-check-circle-fill"></i> Enregistrer la Récolte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mt-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-clock-history text-primary fs-2"></i>
+                    <h6 class="mt-2 mb-0 text-muted">Temps moyen</h6>
+                    <small class="text-muted">2 minutes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-shield-check text-success fs-2"></i>
+                    <h6 class="mt-2 mb-0 text-muted">Données sécurisées</h6>
+                    <small class="text-muted">100% protégées</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-graph-up text-warning fs-2"></i>
+                    <h6 class="mt-2 mb-0 text-muted">Suivi en temps réel</h6>
+                    <small class="text-muted">Statistiques live</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

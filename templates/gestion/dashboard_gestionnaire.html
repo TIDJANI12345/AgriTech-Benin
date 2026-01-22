@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Gestionnaire - AgriTech-Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .alert-banner {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        border-left: 5px solid var(--warning-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        animation: pulse-alert 2s infinite;
+    }
+    
+    @keyframes pulse-alert {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+        50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+    }
+    
+    .metric-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
+        border-radius: 50%;
+        transform: translate(30%, -30%);
+    }
+    
+    .zone-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        background: white;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .zone-item:hover {
+        transform: translateX(8px);
+        box-shadow: var(--card-shadow);
+    }
+    
+    .zone-rank {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+    }
+    
+    .zone-rank.gold {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: white;
+    }
+    
+    .zone-rank.silver {
+        background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+        color: #374151;
+    }
+    
+    .zone-rank.bronze {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        color: white;
+    }
+    
+    .zone-rank.other {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        color: white;
+    }
+    
+    .recent-activity-item {
+        padding: 1rem;
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .recent-activity-item:hover {
+        background-color: rgba(16, 185, 129, 0.05);
+        border-left-color: var(--primary-color);
+    }
+    
+    .entrepot-card {
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+    
+    .entrepot-card.alert {
+        border-left-color: var(--warning-color);
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), transparent);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in-up">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-2">
+                <i class="bi bi-speedometer2"></i> Tableau de Bord Gestionnaire
+            </h2>
+            <p class="text-muted">Vue d'ensemble complète de la coopérative</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-filter"></i> Actions
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'gestion_stocks' %}"><i class="bi bi-box-seam"></i> Gérer Stocks</a></li>
+                    <li><a class="dropdown-item" href="{% url 'toutes_recoltes' %}"><i class="bi bi-list"></i> Toutes Récoltes</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-gear"></i> Administration</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertes Stock Bas -->
+    {% if entrepots_alerte %}
+        <div class="alert-banner">
+            <div class="d-flex align-items-start">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-exclamation-triangle-fill text-warning fs-2 me-3"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="fw-bold text-dark mb-2">
+                        <i class="bi bi-bell-fill"></i> {{ nombre_alertes }} Alerte{{ nombre_alertes|pluralize }} de Stock Bas !
+                    </h5>
+                    <div class="mb-2">
+                        {% for entrepot in entrepots_alerte %}
+                            <div class="d-flex justify-content-between align-items-center py-2">
+                                <span class="fw-semibold">
+                                    <i class="bi bi-building"></i> {{ entrepot.nom }}
+                                </span>
+                                <span class="text-danger fw-bold">
+                                    {{ entrepot.stock_actuel|floatformat:0 }} kg / {{ entrepot.seuil_alerte|floatformat:0 }} kg
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'gestion_stocks' %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-box-seam"></i> Gérer les Stocks Maintenant
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Statistiques Globales -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card metric-card primary h-100">
+                <div class="card-body position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label text-muted mb-2">Producteurs Actifs</p>
+                            <h2 class="stat-value text-primary mb-0">{{ total_producteurs }}</h2>
+                            <small class="text-muted">Membre{{ total_producteurs|pluralize }} de la coopérative</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card metric-card success h-100">
+                <div class="card-body position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label text-muted mb-2">Récoltes Totales</p>
+                            <h2 class="stat-value text-success mb-0">{{ total_recoltes }}</h2>
+                            <small class="text-muted">Enregistrement{{ total_recoltes|pluralize }}</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-basket"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card metric-card warning h-100">
+                <div class="card-body position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label text-muted mb-2">Entrepôts</p>
+                            <h2 class="stat-value text-warning mb-0">{{ total_entrepots }}</h2>
+                            <small class="text-muted">Site{{ total_entrepots|pluralize }} de stockage</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card metric-card danger h-100">
+                <div class="card-body position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label text-muted mb-2">Alertes Stock</p>
+                            <h2 class="stat-value {% if nombre_alertes > 0 %}text-danger{% else %}text-success{% endif %} mb-0">
+                                {{ nombre_alertes }}
+                            </h2>
+                            <small class="text-muted">
+                                {% if nombre_alertes > 0 %}Action requise{% else %}Tout va bien{% endif %}
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques et Analyses -->
+    <div class="row g-4 mb-4">
+        <!-- Stock par Culture -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> Stock par Type de Culture</h5>
+                </div>
+                <div class="card-body">
+                    {% if stocks_par_culture %}
+                        {% for stock in stocks_par_culture %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">
+                                        <i class="bi bi-circle-fill" style="color: {% cycle 'var(--primary-color)' 'var(--success-color)' 'var(--warning-color)' %}"></i>
+                                        {{ stock.type_culture__nom }}
+                                    </span>
+                                    <span class="fw-bold text-success">{{ stock.total|floatformat:0 }} kg</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar" 
+                                         style="width: {% widthratio stock.total stocks_par_culture.0.total 100 %}%; background: {% cycle 'var(--primary-color)' 'var(--success-color)' 'var(--warning-color)' %};">
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: #ddd;"></i>
+                            <p class="text-muted mt-3">Aucun stock enregistré</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top 5 Zones de Production -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-trophy-fill text-warning"></i> Top 5 Zones de Production</h5>
+                </div>
+                <div class="card-body">
+                    {% if production_par_zone %}
+                        {% for zone in production_par_zone %}
+                            <div class="zone-item">
+                                <div class="zone-rank {% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% elif forloop.counter == 3 %}bronze{% else %}other{% endif %}">
+                                    {{ forloop.counter }}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fw-bold">{{ zone.parcelle__arrondissement__nom }}</h6>
+                                    <small class="text-muted">{{ zone.parcelle__arrondissement__commune__nom }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <h5 class="mb-0 text-success fw-bold">{{ zone.total|floatformat:0 }} kg</h5>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: #ddd;"></i>
+                            <p class="text-muted mt-3">Aucune production enregistrée</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Récoltes Récentes -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Activités Récentes</h5>
+                        <a href="{% url 'toutes_recoltes' %}" class="btn btn-sm btn-outline-primary">
+                            Voir tout <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if recoltes_recentes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th><i class="bi bi-calendar3"></i> Date</th>
+                                        <th><i class="bi bi-person"></i> Producteur</th>
+                                        <th><i class="bi bi-flower1"></i> Culture</th>
+                                        <th><i class="bi bi-basket"></i> Quantité</th>
+                                        <th><i class="bi bi-pin-map"></i> Zone</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for recolte in recoltes_recentes %}
+                                        <tr>
+                                            <td>{{ recolte.date_recolte|date:"d/m/Y" }}</td>
+                                            <td>
+                                                <strong>{{ recolte.parcelle.producteur.user.get_full_name|default:recolte.parcelle.producteur.user.username }}</strong>
+                                            </td>
+                                            <td><span class="badge bg-success">{{ recolte.type_culture }}</span></td>
+                                            <td><strong class="text-success">{{ recolte.quantite }} kg</strong></td>
+                                            <td>{{ recolte.parcelle.arrondissement.nom }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox" style="font-size: 4rem; color: #ddd;"></i>
+                            <p class="text-muted mt-3">Aucune activité récente</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

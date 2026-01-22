@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Toutes les Récoltes - AgriTech-Bénin{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="mb-3">
+            <i class="bi bi-list-ul"></i> Toutes les Récoltes
+        </h2>
+        <p class="text-muted">Liste complète des récoltes de la coopérative</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'dashboard_gestionnaire' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Retour au Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Filtrer par culture</label>
+                <select name="type_culture" class="form-select">
+                    <option value="">Toutes les cultures</option>
+                    {% for type in types_cultures %}
+                        <option value="{{ type.nom }}" {% if type.nom == type_culture_filtre %}selected{% endif %}>
+                            {{ type }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Filtrer par arrondissement</label>
+                <select name="arrondissement" class="form-select">
+                    <option value="">Tous les arrondissements</option>
+                    {% for arr in arrondissements %}
+                        <option value="{{ arr.id }}" {% if arr.id|stringformat:"s" == arrondissement_filtre %}selected{% endif %}>
+                            {{ arr.nom }} ({{ arr.commune.nom }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i> Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tableau des récoltes -->
+<div class="card">
+    <div class="card-body">
+        {% if recoltes %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="bi bi-calendar3"></i> Date</th>
+                            <th><i class="bi bi-person"></i> Producteur</th>
+                            <th><i class="bi bi-geo"></i> Parcelle</th>
+                            <th><i class="bi bi-flower1"></i> Culture</th>
+                            <th><i class="bi bi-basket"></i> Quantité</th>
+                            <th><i class="bi bi-pin-map"></i> Zone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for recolte in recoltes %}
+                            <tr>
+                                <td>{{ recolte.date_recolte|date:"d/m/Y" }}</td>
+                                <td>{{ recolte.parcelle.producteur.user.get_full_name|default:recolte.parcelle.producteur.user.username }}</td>
+                                <td>{{ recolte.parcelle.nom }}</td>
+                                <td>
+                                    <span class="badge bg-success">{{ recolte.type_culture }}</span>
+                                </td>
+                                <td><strong>{{ recolte.quantite }} kg</strong></td>
+                                <td>
+                                    {{ recolte.parcelle.arrondissement.nom }}
+                                    <br>
+                                    <small class="text-muted">{{ recolte.parcelle.arrondissement.commune.nom }}</small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3 text-muted">
+                <strong>Total :</strong> {{ recoltes.count }} récolte{{ recoltes.count|pluralize }}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 4rem; color: #ddd;"></i>
+                <h4 class="mt-3 text-muted">Aucune récolte trouvée</h4>
+                <p class="text-muted">Essayez de modifier les filtres</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

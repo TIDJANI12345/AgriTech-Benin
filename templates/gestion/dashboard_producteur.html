@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Producteur - AgriTech-Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-banner {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .welcome-banner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
+        border-radius: 50%;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.8;
+    }
+    
+    .chart-card {
+        height: 100%;
+        min-height: 350px;
+    }
+    
+    .list-item {
+        padding: 1rem;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .list-item:hover {
+        background-color: rgba(16, 185, 129, 0.05);
+        border-left-color: var(--primary-color);
+        transform: translateX(5px);
+    }
+    
+    .quick-action-btn {
+        height: 100%;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+    
+    .quick-action-btn i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .quick-action-btn:hover {
+        transform: translateY(-8px);
+        color: white;
+    }
+    
+    .quick-action-btn.primary:hover {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    }
+    
+    .quick-action-btn.success:hover {
+        background: linear-gradient(135deg, var(--success-color), #16a34a);
+    }
+    
+    .quick-action-btn.secondary:hover {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in-up">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner position-relative">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold mb-2">
+                    <i class="bi bi-sun"></i> Bonjour, {{ producteur.user.get_full_name|default:producteur.user.username }} !
+                </h2>
+                <p class="mb-0 opacity-90">
+                    <i class="bi bi-calendar-check"></i> Bienvenue sur votre tableau de bord - 
+                    <strong>{{ producteur.arrondissement.nom }}, {{ producteur.arrondissement.commune.nom }}</strong>
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'ajouter_recolte' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-plus-circle"></i> Nouvelle Récolte
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques Principales -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card primary h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label text-muted mb-2">Mes Parcelles</p>
+                            <h2 class="stat-value text-primary mb-0">{{ nombre_parcelles }}</h2>
+                            <small class="text-muted">Parcelle{{ nombre_parcelles|pluralize }}</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-geo"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card success h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label text-muted mb-2">Récoltes</p>
+                            <h2 class="stat-value text-success mb-0">{{ nombre_recoltes }}</h2>
+                            <small class="text-muted">Enregistrement{{ nombre_recoltes|pluralize }}</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-basket"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card warning h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label text-muted mb-2">Total Récolté</p>
+                            <h2 class="stat-value text-warning mb-0">{{ total_recolte|floatformat:0 }}</h2>
+                            <small class="text-muted">Kilogrammes</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-bar-chart"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card danger h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label text-muted mb-2">Ma Zone</p>
+                            <h5 class="mb-1 fw-bold">{{ producteur.arrondissement.nom }}</h5>
+                            <small class="text-muted">{{ producteur.arrondissement.commune.nom }}</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-pin-map"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques et Données -->
+    <div class="row g-4 mb-4">
+        <!-- Production par Culture -->
+        <div class="col-lg-6">
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> Production par Type de Culture</h5>
+                </div>
+                <div class="card-body">
+                    {% if recoltes_par_culture %}
+                        <div class="mb-4">
+                            {% for item in recoltes_par_culture %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="fw-semibold">
+                                            <i class="bi bi-circle-fill" style="color: {% cycle 'var(--primary-color)' 'var(--success-color)' 'var(--warning-color)' %}"></i>
+                                            {{ item.type_culture__nom }}
+                                        </span>
+                                        <span class="fw-bold text-success">{{ item.total|floatformat:0 }} kg</span>
+                                    </div>
+                                    <div class="progress" style="height: 12px;">
+                                        <div class="progress-bar" 
+                                             style="width: {% widthratio item.total total_recolte 100 %}%; background: {% cycle 'var(--primary-color)' 'var(--success-color)' 'var(--warning-color)' %};" 
+                                             role="progressbar">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="text-center p-3 bg-light rounded">
+                            <h4 class="text-success mb-0">{{ total_recolte|floatformat:0 }} kg</h4>
+                            <small class="text-muted">Production Totale</small>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox" style="font-size: 4rem; color: #ddd;"></i>
+                            <h5 class="mt-3 text-muted">Aucune récolte enregistrée</h5>
+                            <p class="text-muted">Commencez par ajouter votre première récolte</p>
+                            <a href="{% url 'ajouter_recolte' %}" class="btn btn-success mt-2">
+                                <i class="bi bi-plus-circle"></i> Ajouter une Récolte
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dernières Récoltes -->
+        <div class="col-lg-6">
+            <div class="card chart-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Dernières Récoltes</h5>
+                        <a href="{% url 'mes_recoltes' %}" class="btn btn-sm btn-outline-primary">
+                            Voir tout <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if dernieres_recoltes %}
+                        <div class="list-group list-group-flush">
+                            {% for recolte in dernieres_recoltes %}
+                                <div class="list-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <span class="badge bg-success me-2">{{ recolte.type_culture }}</span>
+                                                <strong class="text-success">{{ recolte.quantite }} kg</strong>
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="bi bi-geo-alt"></i> {{ recolte.parcelle.nom }}
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-calendar3"></i> {{ recolte.date_recolte|date:"d/m/Y" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox" style="font-size: 4rem; color: #ddd;"></i>
+                            <p class="text-muted mt-3">Aucune récolte récente</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="fw-bold mb-3"><i class="bi bi-lightning-charge-fill text-warning"></i> Actions Rapides</h4>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-4">
+            <a href="{% url 'ajouter_recolte' %}" class="card quick-action-btn success">
+                <i class="bi bi-plus-circle-fill text-success"></i>
+                <h5 class="fw-bold mb-1">Enregistrer une Récolte</h5>
+                <small class="text-muted">Ajoutez votre nouvelle récolte</small>
+            </a>
+        </div>
+        
+        <div class="col-md-4">
+            <a href="{% url 'mes_recoltes' %}" class="card quick-action-btn primary">
+                <i class="bi bi-list-ul text-primary"></i>
+                <h5 class="fw-bold mb-1">Mes Récoltes</h5>
+                <small class="text-muted">Consultez tout votre historique</small>
+            </a>
+        </div>
+        
+        <div class="col-md-4">
+            <a href="{% url 'admin:gestion_parcelle_changelist' %}" class="card quick-action-btn secondary">
+                <i class="bi bi-map text-secondary"></i>
+                <h5 class="fw-bold mb-1">Gérer mes Parcelles</h5>
+                <small class="text-muted">Ajoutez ou modifiez vos parcelles</small>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

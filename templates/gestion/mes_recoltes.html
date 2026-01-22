@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes Récoltes - AgriTech-Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-mini {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .stat-mini-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .stat-mini-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    
+    .stat-mini-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+    
+    .stat-mini-label {
+        font-size: 0.75rem;
+        opacity: 0.9;
+    }
+    
+    .table-card {
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    
+    .table-actions {
+        background: #f9fafb;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .table thead th {
+        background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+        color: var(--dark-color);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem 1.5rem;
+        border: none;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .table tbody tr:hover {
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.03), transparent);
+        transform: scale(1.01);
+    }
+    
+    .table tbody td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border: none;
+    }
+    
+    .badge-culture {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .quantite-display {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--success-color);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 2rem;
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: #9ca3af;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in-up">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_producteur' %}"><i class="bi bi-house"></i> Dashboard</a></li>
+            <li class="breadcrumb-item active">Mes Récoltes</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold mb-2">
+                    <i class="bi bi-basket-fill"></i> Mes Récoltes
+                </h2>
+                <p class="mb-0 opacity-90">Historique complet de toutes vos récoltes enregistrées</p>
+                
+                {% if recoltes %}
+                    <div class="stats-mini">
+                        <div class="stat-mini-item">
+                            <div class="stat-mini-icon">
+                                <i class="bi bi-list-check"></i>
+                            </div>
+                            <div>
+                                <div class="stat-mini-value">{{ recoltes|length }}</div>
+                                <div class="stat-mini-label">Récolte{{ recoltes|length|pluralize }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-mini-item">
+                            <div class="stat-mini-icon">
+                                <i class="bi bi-basket"></i>
+                            </div>
+                            <div>
+                                <div class="stat-mini-value">
+                                    {% widthratio recoltes|length 1 1 %}
+                                </div>
+                                <div class="stat-mini-label">Enregistrement{{ recoltes|length|pluralize }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'ajouter_recolte' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-plus-circle-fill"></i> Nouvelle Récolte
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    {% if recoltes %}
+        <div class="card table-card">
+            <!-- Actions Bar -->
+            <div class="table-actions d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted">
+                        <i class="bi bi-funnel"></i> Affichage de <strong>{{ recoltes|length }}</strong> récolte{{ recoltes|length|pluralize }}
+                    </span>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                        <i class="bi bi-printer"></i> Imprimer
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-calendar3"></i> Date</th>
+                            <th><i class="bi bi-geo-alt"></i> Parcelle</th>
+                            <th><i class="bi bi-flower1"></i> Culture</th>
+                            <th><i class="bi bi-basket"></i> Quantité</th>
+                            <th><i class="bi bi-pin-map"></i> Localisation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for recolte in recoltes %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-calendar-check text-primary me-2"></i>
+                                        <strong>{{ recolte.date_recolte|date:"d/m/Y" }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ recolte.parcelle.nom }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="bi bi-rulers"></i> {{ recolte.parcelle.superficie }} ha
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-culture bg-success">
+                                        <i class="bi bi-circle-fill"></i>
+                                        {{ recolte.type_culture }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="quantite-display">{{ recolte.quantite }}</span>
+                                    <small class="text-muted">kg</small>
+                                </td>
+                                <td>
+                                    <div>
+                                        {{ recolte.parcelle.arrondissement.nom }}
+                                        <br>
+                                        <small class="text-muted">{{ recolte.parcelle.arrondissement.commune.nom }}</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-light">
+                            <td colspan="3" class="text-end fw-bold">
+                                <i class="bi bi-calculator"></i> TOTAL :
+                            </td>
+                            <td colspan="2">
+                                <span class="quantite-display">
+                                    {% widthratio recoltes|length 1 1 %}
+                                </span>
+                                <span class="text-muted"> récolte{{ recoltes|length|pluralize }}</span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Actions Footer -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <a href="{% url 'dashboard_producteur' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour au Dashboard
+            </a>
+            <a href="{% url 'ajouter_recolte' %}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Ajouter une Récolte
+            </a>
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="card table-card">
+            <div class="card-body">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-inbox"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Aucune récolte enregistrée</h3>
+                    <p class="text-muted lead mb-4">
+                        Commencez par enregistrer votre première récolte pour suivre votre production
+                    </p>
+                    <a href="{% url 'ajouter_recolte' %}" class="btn btn-success btn-lg">
+                        <i class="bi bi-plus-circle-fill"></i> Ajouter ma Première Récolte
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'dashboard_producteur' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour au Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

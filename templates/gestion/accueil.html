@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - AgriTech-Bénin | Gestion Agricole Moderne{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%),
+                    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%2310b981" width="1200" height="600"/><g fill="%23ffffff" opacity="0.1"><circle cx="300" cy="150" r="100"/><circle cx="800" cy="400" r="150"/><circle cx="1000" cy="200" r="80"/></g></svg>');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 5rem 0;
+        margin: -1rem -1.5rem 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M0,0 L100,0 L100,80 Q50,100 0,80 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-position: bottom;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        animation: fadeInUp 0.8s ease-out;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+        animation: fadeInUp 1s ease-out;
+    }
+    
+    .hero-stats {
+        display: flex;
+        gap: 3rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 3rem;
+    }
+    
+    .hero-stat-item {
+        text-align: center;
+        animation: fadeInUp 1.2s ease-out;
+    }
+    
+    .hero-stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        display: block;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .hero-stat-label {
+        font-size: 0.875rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .feature-card {
+        text-align: center;
+        padding: 2rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.2));
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+    }
+    
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 20px;
+        padding: 3rem;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .hero-stat-number {
+            font-size: 2rem;
+        }
+        
+        .hero-stats {
+            gap: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container hero-content">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="hero-title">
+                    <i class="bi bi-flower1"></i> AgriTech-Bénin
+                </h1>
+                <p class="hero-subtitle">
+                    La plateforme moderne de gestion pour coopératives agricoles au Bénin
+                </p>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'admin:login' %}" class="btn btn-light btn-lg px-5 py-3">
+                        <i class="bi bi-box-arrow-in-right"></i> Commencer Maintenant
+                    </a>
+                {% else %}
+                    <a href="{% if user.producteur %}{% url 'dashboard_producteur' %}{% else %}{% url 'dashboard_gestionnaire' %}{% endif %}" 
+                       class="btn btn-light btn-lg px-5 py-3">
+                        <i class="bi bi-speedometer2"></i> Mon Dashboard
+                    </a>
+                {% endif %}
+                
+                <!-- Hero Stats -->
+                <div class="hero-stats">
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">{{ total_producteurs }}</span>
+                        <span class="hero-stat-label">Producteurs Actifs</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">{{ total_communes }}</span>
+                        <span class="hero-stat-label">Communes Couvertes</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">{{ total_recoltes_kg|floatformat:0 }}</span>
+                        <span class="hero-stat-label">KG Récoltés</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container mb-5">
+    <div class="row mb-5 fade-in-up">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold mb-3">Fonctionnalités Puissantes</h2>
+            <p class="text-muted lead">Tout ce dont vous avez besoin pour gérer efficacement votre coopérative</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.1s">
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Gestion Producteurs</h5>
+                <p class="text-muted">Inscription facile des producteurs avec localisation GPS de leurs parcelles</p>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.2s">
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-clipboard-data"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Suivi des Récoltes</h5>
+                <p class="text-muted">Enregistrement en temps réel des quantités récoltées par type de culture</p>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.3s">
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Gestion des Stocks</h5>
+                <p class="text-muted">Alertes automatiques de stock bas et gestion multi-entrepôts</p>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.4s">
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Tableaux de Bord</h5>
+                <p class="text-muted">Visualisation des rendements et statistiques par zone en temps réel</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Benefits Section -->
+<div class="container mb-5">
+    <div class="row g-4 align-items-center">
+        <div class="col-md-6 fade-in-up">
+            <h2 class="fw-bold mb-4">Pourquoi choisir AgriTech-Bénin ?</h2>
+            <div class="d-flex mb-4">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h5 class="fw-bold">Interface Mobile-First</h5>
+                    <p class="text-muted">Optimisé pour smartphones, utilisable directement sur le terrain</p>
+                </div>
+            </div>
+            <div class="d-flex mb-4">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h5 class="fw-bold">Sécurité Renforcée</h5>
+                    <p class="text-muted">Système de permissions avancé pour protéger vos données</p>
+                </div>
+            </div>
+            <div class="d-flex mb-4">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h5 class="fw-bold">Rapports Automatiques</h5>
+                    <p class="text-muted">Génération automatique de statistiques et analyses</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 fade-in-up" style="animation-delay: 0.3s">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-star-fill text-warning"></i> Témoignages</h5>
+                    <blockquote class="blockquote mb-4">
+                        <p>"AgriTech-Bénin a révolutionné notre façon de travailler. Fini les carnets papier !"</p>
+                        <footer class="blockquote-footer">Jean K., Producteur à Cotonou</footer>
+                    </blockquote>
+                    <blockquote class="blockquote">
+                        <p>"La gestion des stocks n'a jamais été aussi simple. Les alertes nous font gagner un temps précieux."</p>
+                        <footer class="blockquote-footer">Marie D., Gestionnaire à Porto-Novo</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="container mb-5">
+    <div class="cta-section fade-in-up">
+        <div class="row justify-content-center position-relative">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-3">Prêt à moderniser votre coopérative ?</h2>
+                <p class="lead mb-4">Rejoignez les centaines de producteurs qui ont déjà fait le choix de l'innovation</p>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'admin:login' %}" class="btn btn-light btn-lg px-5 py-3">
+                        <i class="bi bi-rocket-takeoff"></i> Démarrer Gratuitement
+                    </a>
+                {% else %}
+                    <a href="{% if user.producteur %}{% url 'dashboard_producteur' %}{% else %}{% url 'dashboard_gestionnaire' %}{% endif %}" 
+                       class="btn btn-light btn-lg px-5 py-3">
+                        <i class="bi bi-speedometer2"></i> Accéder à Mon Espace
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

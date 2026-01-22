@@ -1,0 +1,382 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestion des Stocks - AgriTech-Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .entrepot-card {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .entrepot-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+    
+    .entrepot-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .entrepot-header.alert-state {
+        background: linear-gradient(135deg, var(--warning-color), #ea580c);
+        animation: pulse-warning 2s infinite;
+    }
+    
+    @keyframes pulse-warning {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.85; }
+    }
+    
+    .entrepot-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 70%);
+        animation: rotate 10s linear infinite;
+    }
+    
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .entrepot-title {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .status-badge.ok {
+        background: rgba(255,255,255,0.25);
+    }
+    
+    .status-badge.alert {
+        background: rgba(255,255,255,0.3);
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .metric-row:last-child {
+        border-bottom: none;
+    }
+    
+    .metric-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+    
+    .metric-value {
+        font-weight: 700;
+        color: var(--dark-color);
+    }
+    
+    .progress-custom {
+        height: 24px;
+        border-radius: 12px;
+        background: #f3f4f6;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+    }
+    
+    .progress-bar-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 0.75rem;
+        transition: width 0.6s ease;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    }
+    
+    .progress-bar-custom.low {
+        background: linear-gradient(90deg, var(--danger-color), #f87171);
+    }
+    
+    .progress-bar-custom.medium {
+        background: linear-gradient(90deg, var(--warning-color), #fbbf24);
+    }
+    
+    .progress-bar-custom.high {
+        background: linear-gradient(90deg, var(--success-color), #4ade80);
+    }
+    
+    .stock-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        border-radius: 8px;
+        background: #f9fafb;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .stock-item:hover {
+        background: #f3f4f6;
+        transform: translateX(5px);
+    }
+    
+    .stock-item:last-child {
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in-up">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_gestionnaire' %}"><i class="bi bi-house"></i> Dashboard</a></li>
+            <li class="breadcrumb-item active">Gestion des Stocks</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-2">
+                <i class="bi bi-box-seam-fill"></i> Gestion des Stocks
+            </h2>
+            <p class="text-muted">Suivi en temps réel des stocks dans tous les entrepôts</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'dashboard_gestionnaire' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    {% if entrepots %}
+        <!-- Summary Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="stat-label text-muted mb-2">Entrepôts Totaux</p>
+                                <h2 class="stat-value text-primary mb-0">{{ entrepots|length }}</h2>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card {% if entrepots|length > 0 %}success{% else %}warning{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="stat-label text-muted mb-2">Entrepôts OK</p>
+                                <h2 class="stat-value text-success mb-0">
+                                    {% widthratio entrepots|length 1 1 %}
+                                </h2>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="stat-label text-muted mb-2">Alertes</p>
+                                <h2 class="stat-value text-warning mb-0">
+                                    {% for e in entrepots %}{% if e.alerte %}1{% endif %}{% empty %}0{% endfor %}
+                                </h2>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="stat-label text-muted mb-2">Stock Total</p>
+                                <h2 class="stat-value text-success mb-0">
+                                    {% for e in entrepots %}{{ e.stock_total|floatformat:0 }}{% empty %}0{% endfor %}
+                                </h2>
+                                <small class="text-muted">kg</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="bi bi-basket"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entrepôts Grid -->
+        <div class="row g-4">
+            {% for entrepot in entrepots %}
+                <div class="col-lg-6">
+                    <div class="entrepot-card">
+                        <!-- Header -->
+                        <div class="entrepot-header {% if entrepot.alerte %}alert-state{% endif %}">
+                            <div class="entrepot-title">
+                                <div>
+                                    <h5 class="mb-1 fw-bold">
+                                        <i class="bi bi-building"></i> {{ entrepot.nom }}
+                                    </h5>
+                                    <small class="opacity-90">
+                                        <i class="bi bi-pin-map"></i> {{ entrepot.arrondissement.nom }}, {{ entrepot.arrondissement.commune.nom }}
+                                    </small>
+                                </div>
+                                <span class="status-badge {% if entrepot.alerte %}alert{% else %}ok{% endif %}">
+                                    {% if entrepot.alerte %}
+                                        <i class="bi bi-exclamation-triangle-fill"></i> Alerte
+                                    {% else %}
+                                        <i class="bi bi-check-circle-fill"></i> OK
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Body -->
+                        <div class="card-body p-4">
+                            <!-- Metrics -->
+                            <div class="mb-4">
+                                <div class="metric-row">
+                                    <span class="metric-label">Capacité maximale</span>
+                                    <span class="metric-value">{{ entrepot.capacite_max|floatformat:0 }} kg</span>
+                                </div>
+                                <div class="metric-row">
+                                    <span class="metric-label">Stock actuel</span>
+                                    <span class="metric-value {% if entrepot.alerte %}text-warning{% else %}text-success{% endif %}">
+                                        {{ entrepot.stock_total|floatformat:0 }} kg
+                                    </span>
+                                </div>
+                                <div class="metric-row">
+                                    <span class="metric-label">Seuil d'alerte</span>
+                                    <span class="metric-value">{{ entrepot.seuil_alerte|floatformat:0 }} kg</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted mb-2">
+                                    <i class="bi bi-speedometer"></i> Taux de remplissage
+                                </label>
+                                <div class="progress-custom">
+                                    <div class="progress-bar-custom {% if entrepot.taux < 30 %}low{% elif entrepot.taux < 70 %}medium{% else %}high{% endif %}" 
+                                         style="width: {{ entrepot.taux }}%;">
+                                        {{ entrepot.taux|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Stocks par Culture -->
+                            <div class="mb-3">
+                                <h6 class="fw-bold mb-3">
+                                    <i class="bi bi-list-check"></i> Stocks par Culture
+                                </h6>
+                                {% if entrepot.stocks.all %}
+                                    {% for stock in entrepot.stocks.all %}
+                                        <div class="stock-item">
+                                            <span class="fw-semibold">
+                                                <i class="bi bi-circle-fill text-success"></i>
+                                                {{ stock.type_culture }}
+                                            </span>
+                                            <span class="badge bg-success">{{ stock.quantite|floatformat:0 }} kg</span>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted small mb-0 text-center py-3">
+                                        <i class="bi bi-inbox"></i> Aucun stock enregistré
+                                    </p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Gestionnaire -->
+                            {% if entrepot.gestionnaire %}
+                                <div class="mt-3 p-3 bg-light rounded">
+                                    <small class="text-muted d-block mb-1">
+                                        <i class="bi bi-person-badge"></i> Gestionnaire
+                                    </small>
+                                    <strong>{{ entrepot.gestionnaire.get_full_name|default:entrepot.gestionnaire.username }}</strong>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="card-footer bg-white border-top p-3">
+                            <a href="{% url 'modifier_stock' entrepot.id %}" class="btn btn-primary w-100">
+                                <i class="bi bi-pencil-square"></i> Modifier les Stocks
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="empty-icon mx-auto mb-4">
+                    <i class="bi bi-inbox"></i>
+                </div>
+                <h3 class="fw-bold mb-3">Aucun entrepôt enregistré</h3>
+                <p class="text-muted lead mb-4">
+                    Commencez par ajouter des entrepôts depuis l'interface d'administration
+                </p>
+                <a href="{% url 'admin:gestion_entrepot_add' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle-fill"></i> Ajouter un Entrepôt
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier Stock - AgriTech-Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .entrepot-banner {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .entrepot-banner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.15), transparent);
+        border-radius: 50%;
+    }
+    
+    .current-stocks-card {
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .current-stocks-header {
+        background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+        padding: 1.25rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .stock-table {
+        margin-bottom: 0;
+    }
+    
+    .stock-table thead th {
+        background: white;
+        color: var(--dark-color);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .stock-table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .stock-table tbody tr:hover {
+        background: rgba(16, 185, 129, 0.05);
+    }
+    
+    .stock-table tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+    }
+    
+    .form-section {
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .form-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .form-section-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .info-sidebar {
+        position: sticky;
+        top: 100px;
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+        border: 2px solid rgba(16, 185, 129, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    .info-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .info-icon-small {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in-up">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_gestionnaire' %}"><i class="bi bi-house"></i> Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'gestion_stocks' %}"><i class="bi bi-box-seam"></i> Stocks</a></li>
+            <li class="breadcrumb-item active">Modifier Stock</li>
+        </ol>
+    </nav>
+
+    <!-- Entrepôt Banner -->
+    <div class="entrepot-banner position-relative">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold mb-2">
+                    <i class="bi bi-building"></i> {{ entrepot.nom }}
+                </h2>
+                <p class="mb-0 opacity-90">
+                    <i class="bi bi-pin-map"></i> {{ entrepot.arrondissement.nom }}, {{ entrepot.arrondissement.commune.nom }}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'gestion_stocks' %}" class="btn btn-light">
+                    <i class="bi bi-arrow-left"></i> Retour aux Stocks
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Current Stocks -->
+            {% if stocks %}
+                <div class="current-stocks-card mb-4">
+                    <div class="current-stocks-header">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-list-check"></i> Stocks Actuels
+                        </h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="stock-table table">
+                            <thead>
+                                <tr>
+                                    <th><i class="bi bi-flower1"></i> Culture</th>
+                                    <th><i class="bi bi-basket"></i> Quantité</th>
+                                    <th><i class="bi bi-clock"></i> Dernière MAJ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stock in stocks %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-success">{{ stock.type_culture }}</span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-success fs-5">{{ stock.quantite|floatformat:0 }}</strong>
+                                            <small class="text-muted">kg</small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar-check"></i> {{ stock.date_mise_a_jour|date:"d/m/Y H:i" }}
+                                            </small>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Modification Form -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <div class="form-section-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">Ajouter / Modifier un Stock</h4>
+                        <small class="text-muted">Mettez à jour les quantités en stock</small>
+                    </div>
+                </div>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Type de Culture -->
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.type_culture.id_for_label }}" class="form-label">
+                                <i class="bi bi-flower1 text-primary"></i> {{ form.type_culture.label }}
+                            </label>
+                            {{ form.type_culture }}
+                            {% if form.type_culture.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="bi bi-exclamation-circle"></i> {{ form.type_culture.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Quantité -->
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.quantite.id_for_label }}" class="form-label">
+                                <i class="bi bi-basket text-primary"></i> {{ form.quantite.label }}
+                            </label>
+                            {{ form.quantite }}
+                            {% if form.quantite.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="bi bi-exclamation-circle"></i> {{ form.quantite.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> Entrez la quantité totale actuelle en stock
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Alert Box -->
+                    <div class="alert alert-warning d-flex align-items-start" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                        <div>
+                            <strong>Important :</strong> La quantité que vous entrez remplacera la valeur actuelle pour ce type de culture. 
+                            Ce n'est pas une addition, mais un remplacement complet.
+                        </div>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-4">
+                        <a href="{% url 'gestion_stocks' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle-fill"></i> Mettre à Jour le Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="info-sidebar">
+                <div class="info-box">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-info-circle-fill text-primary"></i> Informations Entrepôt
+                    </h5>
+                    
+                    <div class="info-item">
+                        <div class="info-icon-small">
+                            <i class="bi bi-arrows-expand"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Capacité maximale</small>
+                            <strong class="fs-5">{{ entrepot.capacite_max|floatformat:0 }}</strong>
+                            <small class="text-muted">kg</small>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon-small">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Seuil d'alerte</small>
+                            <strong class="fs-5">{{ entrepot.seuil_alerte|floatformat:0 }}</strong>
+                            <small class="text-muted">kg</small>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon-small">
+                            <i class="bi bi-basket"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Stock actuel total</small>
+                            <strong class="fs-5 text-success">{{ entrepot.stock_actuel|floatformat:0 }}</strong>
+                            <small class="text-muted">kg</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tips Card -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-lightbulb-fill text-warning"></i> Conseils Pratiques
+                        </h6>
+                        
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success"></i>
+                                <small>Mettez à jour les stocks régulièrement</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success"></i>
+                                <small>Surveillez les alertes de stock bas</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success"></i>
+                                <small>Vérifiez la capacité avant d'ajouter</small>
+                            </li>
+                            <li class="mb-0">
+                                <i class="bi bi-check-circle text-success"></i>
+                                <small>Documentez les mouvements importants</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
