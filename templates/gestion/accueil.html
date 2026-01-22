@@ -4,6 +4,244 @@
 
 {% block extra_css %}
 <style>
+    /* Modal Styles */
+    .credentials-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .credentials-modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    
+    .credentials-content {
+        background: white;
+        border-radius: 24px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        animation: slideUp 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .credentials-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 2rem;
+        border-radius: 24px 24px 0 0;
+        text-align: center;
+        position: relative;
+    }
+    
+    .credentials-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="15" fill="rgba(255,255,255,0.05)"/><circle cx="80" cy="80" r="20" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="50" r="10" fill="rgba(255,255,255,0.05)"/></svg>');
+    }
+    
+    .student-name {
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .project-title {
+        font-size: 1rem;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .credentials-body {
+        padding: 2rem;
+    }
+    
+    .role-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .role-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .role-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .role-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+    
+    .credential-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.875rem;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .credential-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .credential-label {
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+    
+    .credential-value {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        color: var(--dark-color);
+        background: #f9fafb;
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.2s ease;
+        z-index: 2;
+    }
+    
+    .close-modal:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+    
+    .info-banner {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+    }
+    
+    .info-banner i {
+        color: #f59e0b;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+    
+    .info-banner-text {
+        font-size: 0.875rem;
+        color: #92400e;
+    }
+    
+    .show-credentials-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 1rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+    
+    .show-credentials-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+    }
+    
+    .show-credentials-btn i {
+        font-size: 1.25rem;
+    }
+    
+    @media (max-width: 768px) {
+        .credentials-content {
+            margin: 1rem;
+        }
+        
+        .student-name {
+            font-size: 1.5rem;
+        }
+        
+        .show-credentials-btn {
+            bottom: 1rem;
+            right: 1rem;
+            padding: 0.875rem 1.25rem;
+        }
+    }
+    
     .hero-section {
         background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%),
                     url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%2310b981" width="1200" height="600"/><g fill="%23ffffff" opacity="0.1"><circle cx="300" cy="150" r="100"/><circle cx="800" cy="400" r="150"/><circle cx="1000" cy="200" r="80"/></g></svg>');
@@ -150,6 +388,124 @@
 {% endblock %}
 
 {% block content %}
+<!-- Modal des identifiants -->
+<div class="credentials-modal" id="credentialsModal">
+    <div class="credentials-content">
+        <div class="credentials-header">
+            <button class="close-modal" onclick="closeCredentialsModal()">
+                <i class="bi bi-x"></i>
+            </button>
+            <div class="student-name">TIDJANI Mohamed Amine</div>
+            <div class="project-title">Projet : AgriTech-Bénin - Gestion de Coopérative Agricole</div>
+        </div>
+        
+        <div class="credentials-body">
+            <!-- Admin -->
+            <div class="role-section">
+                <div class="role-title">
+                    <div class="role-icon">
+                        <i class="bi bi-shield-fill-check"></i>
+                    </div>
+                    <h5 class="mb-0 fw-bold">Administrateur (Superuser)</h5>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Nom d'utilisateur</span>
+                    <span class="credential-value">admin</span>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Mot de passe</span>
+                    <span class="credential-value">admin@2026</span>
+                </div>
+            </div>
+            
+            <!-- Gestionnaire -->
+            <div class="role-section">
+                <div class="role-title">
+                    <div class="role-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <h5 class="mb-0 fw-bold">Gestionnaire</h5>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Nom d'utilisateur</span>
+                    <span class="credential-value">gestionnaire1</span>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Mot de passe</span>
+                    <span class="credential-value">gestionnaire123</span>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Nom complet</span>
+                    <span class="credential-value">Sylvie Mensah</span>
+                </div>
+            </div>
+            
+            <!-- Producteurs -->
+            <div class="role-section">
+                <div class="role-title">
+                    <div class="role-icon">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <h5 class="mb-0 fw-bold">Producteurs</h5>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted fw-semibold d-block mb-2">Producteur 1 - Jean Kouassi</small>
+                    <div class="credential-item">
+                        <span class="credential-label">Nom d'utilisateur</span>
+                        <span class="credential-value">jkouassi</span>
+                    </div>
+                    <div class="credential-item">
+                        <span class="credential-label">Mot de passe</span>
+                        <span class="credential-value">producteur123</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted fw-semibold d-block mb-2">Producteur 2 - Marie Dossou</small>
+                    <div class="credential-item">
+                        <span class="credential-label">Nom d'utilisateur</span>
+                        <span class="credential-value">mdossou</span>
+                    </div>
+                    <div class="credential-item">
+                        <span class="credential-label">Mot de passe</span>
+                        <span class="credential-value">producteur123</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted fw-semibold d-block mb-2">Producteur 3 - Paul Agbodjan</small>
+                    <div class="credential-item">
+                        <span class="credential-label">Nom d'utilisateur</span>
+                        <span class="credential-value">pagbodjan</span>
+                    </div>
+                    <div class="credential-item">
+                        <span class="credential-label">Mot de passe</span>
+                        <span class="credential-value">producteur123</span>
+                    </div>
+                </div>
+                
+                <small class="text-muted fst-italic">+ 2 autres producteurs disponibles (ehoungbo, jkpade)</small>
+            </div>
+            
+            <!-- Info Banner -->
+            <div class="info-banner">
+                <i class="bi bi-info-circle-fill"></i>
+                <div class="info-banner-text">
+                    <strong>Note :</strong> Tous les mots de passe sont à usage de démonstration uniquement. 
+                    Les données de la base sont générées automatiquement lors du déploiement.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton flottant pour afficher les identifiants -->
+<button class="show-credentials-btn" onclick="showCredentialsModal()">
+    <i class="bi bi-key-fill"></i>
+    <span>Identifiants de connexion</span>
+</button>
+
 <!-- Hero Section -->
 <div class="hero-section">
     <div class="container hero-content">
@@ -321,4 +677,35 @@
         </div>
     </div>
 </div>
+
+<script>
+function showCredentialsModal() {
+    document.getElementById('credentialsModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCredentialsModal() {
+    document.getElementById('credentialsModal').classList.remove('show');
+    document.body.style.overflow = 'auto';
+}
+
+// Fermer en cliquant en dehors du modal
+document.getElementById('credentialsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCredentialsModal();
+    }
+});
+
+// Fermer avec la touche Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeCredentialsModal();
+    }
+});
+
+// Afficher automatiquement le modal au chargement de la page (pour la démonstration)
+window.addEventListener('load', function() {
+    setTimeout(showCredentialsModal, 800);
+});
+</script>
 {% endblock %}

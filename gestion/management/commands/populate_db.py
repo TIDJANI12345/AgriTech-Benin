@@ -118,7 +118,24 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(f'  ✅ {prenom} {nom}')
         
-        # 6. CRÉER UN GESTIONNAIRE
+        # 6. CRÉER UN SUPERUSER (ADMIN)
+        self.stdout.write('👑 Création du superuser (Admin)...')
+        superuser, created = User.objects.get_or_create(
+            username='admin',
+            defaults={
+                'first_name': 'TIDJANI',
+                'last_name': 'Mohamed Amine',
+                'email': 'admin@agritech.bj',
+                'is_staff': True,
+                'is_superuser': True,
+            }
+        )
+        if created:
+            superuser.set_password('admin@2026')
+            superuser.save()
+            self.stdout.write('  ✅ Admin (TIDJANI Mohamed Amine)')
+        
+        # 7. CRÉER UN GESTIONNAIRE
         self.stdout.write('👨‍💼 Création du gestionnaire...')
         user_gest, created = User.objects.get_or_create(
             username='gestionnaire1',
@@ -243,6 +260,8 @@ class Command(BaseCommand):
         self.stdout.write(f'   • {Stock.objects.count()} stocks')
         
         self.stdout.write(self.style.WARNING('\n🔐 COMPTES CRÉÉS :'))
+        self.stdout.write('   SUPERUSER (ADMIN) :')
+        self.stdout.write('      • admin / admin@2026')
         self.stdout.write('   PRODUCTEURS :')
         for prod in producteurs:
             self.stdout.write(f'      • {prod.user.username} / producteur123')
