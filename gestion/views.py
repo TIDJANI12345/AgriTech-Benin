@@ -8,9 +8,19 @@ from .models import (
 )
 from .forms import RecolteForm, StockForm
 
+from django.contrib.auth import logout
+from django.shortcuts import redirect, render
+from django.contrib import messages
+
 # ============================================
 # VUES POUR LES PRODUCTEURS
 # ============================================
+
+def custom_logout(request):
+    """Déconnecte l'utilisateur et redirige vers l'accueil"""
+    logout(request)
+    messages.success(request, "Vous avez été déconnecté avec succès. À bientôt !")
+    return redirect('accueil')
 
 @login_required
 def dashboard_producteur(request):

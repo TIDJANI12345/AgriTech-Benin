@@ -1,0 +1,377 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion - AgriTech-Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .login-container {
+        max-width: 480px;
+        margin: 4rem auto;
+        padding: 0 1rem;
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: none;
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        padding: 3rem 2rem;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .login-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+    
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .login-logo {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 3rem;
+        backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .login-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .login-subtitle {
+        opacity: 0.95;
+        font-size: 0.95rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .login-body {
+        padding: 2.5rem;
+    }
+    
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-floating > .form-control {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        height: 60px;
+        font-size: 1rem;
+    }
+    
+    .form-floating > .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+    
+    .form-floating > label {
+        padding: 1.125rem 1.25rem;
+        color: #6b7280;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: 1.25rem;
+        z-index: 5;
+        padding: 0.5rem;
+    }
+    
+    .password-toggle:hover {
+        color: var(--primary-color);
+    }
+    
+    .btn-login {
+        width: 100%;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: white;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(16, 185, 129, 0.3);
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 2rem 0;
+        color: #9ca3af;
+        font-size: 0.875rem;
+    }
+    
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .divider span {
+        padding: 0 1rem;
+    }
+    
+    .help-links {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .help-links a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    
+    .help-links a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+    
+    .features-strip {
+        display: flex;
+        justify-content: space-around;
+        padding: 2rem;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+    
+    .feature-item i {
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+    
+    .alert-custom {
+        border-radius: 12px;
+        border: none;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 576px) {
+        .login-container {
+            margin: 2rem auto;
+        }
+        
+        .login-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .login-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .features-strip {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container fade-in-up">
+    <div class="login-card">
+        <!-- Header -->
+        <div class="login-header">
+            <div class="login-logo">
+                {% load static %}
+                <img src="{% static 'images/logo.png' %}" alt="AgriTech-Bénin" style="height: 70px; width: auto; border-radius: 50%; object-fit: cover;">
+            </div>
+            <h1 class="login-title">Bienvenue !</h1>
+            <p class="login-subtitle">Connectez-vous à votre compte AgriTech-Bénin</p>
+        </div>
+        
+        <!-- Body -->
+        <div class="login-body">
+            <!-- Messages d'erreur -->
+            {% if form.errors %}
+                <div class="alert alert-danger alert-custom">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Erreur de connexion</strong>
+                    <p class="mb-0 mt-1">Nom d'utilisateur ou mot de passe incorrect.</p>
+                </div>
+            {% endif %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-custom">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Form -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Username -->
+                <div class="form-floating">
+                    <input type="text" 
+                           class="form-control" 
+                           id="id_username" 
+                           name="username" 
+                           placeholder="Nom d'utilisateur"
+                           required
+                           autofocus>
+                    <label for="id_username">
+                        <i class="bi bi-person"></i> Nom d'utilisateur
+                    </label>
+                </div>
+                
+                <!-- Password -->
+                <div class="form-floating position-relative">
+                    <input type="password" 
+                           class="form-control" 
+                           id="id_password" 
+                           name="password" 
+                           placeholder="Mot de passe"
+                           required>
+                    <label for="id_password">
+                        <i class="bi bi-lock"></i> Mot de passe
+                    </label>
+                    <button type="button" 
+                            class="password-toggle" 
+                            onclick="togglePassword()"
+                            aria-label="Afficher le mot de passe">
+                        <i class="bi bi-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+                
+                <!-- Remember Me & Forgot Password -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">
+                            Se souvenir de moi
+                        </label>
+                    </div>
+                    <a href="#" class="text-decoration-none" style="color: var(--primary-color); font-size: 0.875rem;">
+                        Mot de passe oublié ?
+                    </a>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Se Connecter
+                </button>
+            </form>
+            
+            <!-- Divider -->
+            <div class="divider">
+                <span>OU</span>
+            </div>
+            
+            <!-- Help Links -->
+            <div class="help-links">
+                <p class="text-muted mb-2">Pas encore de compte ?</p>
+                <p class="mb-0">
+                    Contactez votre administrateur pour créer un compte
+                </p>
+            </div>
+        </div>
+        
+        <!-- Features Strip -->
+        <div class="features-strip">
+            <div class="feature-item">
+                <i class="bi bi-shield-check"></i>
+                <span>Sécurisé</span>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-phone"></i>
+                <span>Mobile-friendly</span>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-lightning-charge"></i>
+                <span>Rapide</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back to Home -->
+    <div class="text-center mt-4">
+        <a href="{% url 'accueil' %}" class="text-decoration-none" style="color: var(--primary-color);">
+            <i class="bi bi-arrow-left"></i> Retour à l'accueil
+        </a>
+    </div>
+</div>
+
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('id_password');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+    }
+}
+</script>
+{% endblock %}

@@ -5,6 +5,9 @@ urlpatterns = [
     # Page d'accueil
     path('', views.accueil, name='accueil'),
     
+    # Déconnexion personnalisée
+    path('logout/', views.custom_logout, name='logout'),
+    
     # URLs pour les Producteurs
     path('producteur/dashboard/', views.dashboard_producteur, name='dashboard_producteur'),
     path('producteur/mes-recoltes/', views.mes_recoltes, name='mes_recoltes'),
