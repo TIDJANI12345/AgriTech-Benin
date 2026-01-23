@@ -486,7 +486,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <h5><i class="bi bi-flower1"></i> AgriTech-Bénin</h5>
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
+                        {% load static %}
+                        <img src="{% static 'images/logo.png' %}" alt="AgriTech-Bénin" style="height: 40px; width: auto; margin-right: 0.75rem; border-radius: 8px;">
+                        <h5 class="mb-0">AgriTech-Bénin</h5>
+                    </div>
                     <p class="small">Plateforme de gestion de coopérative agricole</p>
                 </div>
                 <div class="col-md-4 mb-3">

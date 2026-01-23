@@ -321,7 +321,8 @@
                 </div>
                 <div class="card-body p-0">
                     {% if recoltes_recentes %}
-                        <div class="table-responsive">
+                        <!-- Vue Desktop -->
+                        <div class="table-responsive d-none d-md-block">
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
@@ -346,6 +347,31 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
+                        </div>
+                        
+                        <!-- Vue Mobile -->
+                        <div class="d-md-none">
+                            {% for recolte in recoltes_recentes %}
+                                <div class="p-3 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <div class="fw-bold text-primary mb-1">
+                                                {{ recolte.parcelle.producteur.user.get_full_name|default:recolte.parcelle.producteur.user.username }}
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar3"></i> {{ recolte.date_recolte|date:"d/m/Y" }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-success">{{ recolte.type_culture }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">
+                                            <i class="bi bi-pin-map"></i> {{ recolte.parcelle.arrondissement.nom }}
+                                        </span>
+                                        <strong class="text-success fs-5">{{ recolte.quantite }} kg</strong>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     {% else %}
                         <div class="text-center py-5">
