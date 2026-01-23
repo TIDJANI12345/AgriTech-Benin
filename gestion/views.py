@@ -11,6 +11,11 @@ from .forms import RecolteForm, StockForm
 from django.contrib.auth import logout
 from django.shortcuts import redirect, render
 from django.contrib import messages
+from django.http import HttpResponse
+
+def health_check(request):
+    """Endpoint simple pour les health checks"""
+    return HttpResponse("OK", status=200)
 
 # ============================================
 # VUES POUR LES PRODUCTEURS

@@ -18,4 +18,7 @@ urlpatterns = [
     path('gestionnaire/stocks/', views.gestion_stocks, name='gestion_stocks'),
     path('gestionnaire/stocks/modifier/<int:entrepot_id>/', views.modifier_stock, name='modifier_stock'),
     path('gestionnaire/recoltes/', views.toutes_recoltes, name='toutes_recoltes'),
+    
+    # Health check pour les cron jobs
+    path('health/', views.health_check, name='health_check'),
 ]
